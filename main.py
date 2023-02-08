@@ -1,6 +1,8 @@
 #By Eulises Franco
 #UTSA ID: btz670
 
+from nltk.tokenize import word_tokenize
+
 # To open File
 file = open("read.py")
 operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<':"'<'", '<=':'T_LessEqual', '>':"'>'", '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
@@ -27,7 +29,8 @@ program = a.split("\n")
 for line in program:
     count += 1
     #print("line#", count, "\n", line)
-    tokens = line.split(' ')
+    # tokens = line.split(' ')
+    tokens = word_tokenize(line)
 
     #print("Tokens", tokens)
 
