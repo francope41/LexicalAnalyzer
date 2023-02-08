@@ -1,7 +1,10 @@
 #By Eulises Franco
 #UTSA ID: btz670
 
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import RegexpTokenizer, WordPunctTokenizer
+#tokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
+tokenizer = WordPunctTokenizer()
+
 
 # To open File
 file = open("read.py")
@@ -30,31 +33,54 @@ for line in program:
     count += 1
     #print("line#", count, "\n", line)
     # tokens = line.split(' ')
-    tokens = word_tokenize(line)
+    tokens = tokenizer.tokenize(line)
+
 
     #print("Tokens", tokens)
 
     #print("Line#", count, "Properties \n")
     for token in tokens:
+        val_isint = False
+        val_isfloat = False
+
         if token in empty_key:
             break
-        if token in operators_key:
-            #print("operator", operators[token])
-            print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), operators[token])
 
-        elif token in data_type_key:
-            #print("data_type", operators[token])
-            print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), data_type[token])
+        try:
+            num_token = int(token)
+            if isinstance(num_token,int):
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_IntConstant (value = {})'.format(token))
+                val_isint = True
+        except:
+            try:
+                num_token = float(token)
+                if isinstance(token,float):
+                    print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_IntConstant (value = {})'.format(token))
+                    val_isfloat = True
+            except:
+                pass
+        
+        if not val_isint and not val_isfloat: 
 
-        elif token in punctuation_key:
-            #print("punctuation", operators[token])
-            print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), punctuation[token])
+            if token in operators_key:
+                #print("operator", operators[token])
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), operators[token])
 
-        elif token in keyword_key:
-            #print("keyword", operators[token])
-            print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), keyword[token])
+            elif token in data_type_key:
+                #print("data_type", operators[token])
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), data_type[token])
 
+            elif token in punctuation_key:
+                #print("punctuation", operators[token])
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), punctuation[token])
+
+            elif token in keyword_key:
+                #print("keyword", operators[token])
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), keyword[token])
+
+            
+            else:
+                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_Identifier')
         
         else:
-            print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_Identifier')
-        
+            pass
