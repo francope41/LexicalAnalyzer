@@ -35,9 +35,10 @@ for line in program:
     #print("line#", count, "\n", line)
     # tokens = line.split(' ')
     #tokens = tokenizer.tokenize(line)
-    tokens = re.findall('"([^\"]*)"', line)
+    #tokens = re.findall( r' \w | \d+ |"([^\"]*)"', line)
+    tokens = re.findall( r'\b+', line)
 
-
+    print('Tokens', tokens)
 
     #print("Line#", count, "Properties \n")
     for token in tokens:
@@ -47,9 +48,6 @@ for line in program:
 
         if token in empty_key:
             break
-
-        if token[0]== "\"" and token[-1]=="\"":
-            val_isstring = True
 
         try:
             num_token = int(token)

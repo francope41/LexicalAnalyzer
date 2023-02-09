@@ -2,12 +2,11 @@
 #UTSA ID: btz670
 
 from nltk.tokenize import RegexpTokenizer, WordPunctTokenizer
-tokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+ | ((?<![\\])[\'\"])')
-#tokenizer = WordPunctTokenizer()
+tokenizer = WordPunctTokenizer()
 
 
 # To open File
-file = open("read.py")
+file = open("samples/badstring.frag")
 operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<':"'<'", '<=':'T_LessEqual', '>':"'>'", '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
 operators_key = operators.keys()
 
@@ -23,6 +22,8 @@ keyword_key = keyword.keys()
 empty = {'':''}
 empty_key = empty.keys()
 
+unrecognized_key = {'$':'*** Unrecognized char: \'$\'' , '@':'*** Unrecognized char: \'@\'' , '^':'*** Unrecognized char: \'^\'' , '&':'*** Unrecognized char: \'&\''  , '~':'*** Unrecognized char: \'~\'' , '`':'*** Unrecognized char: \'`\'' , '?':'*** Unrecognized char: \'?\''}
+
 a = file.read()
 
 count = 0
@@ -34,7 +35,6 @@ for line in program:
     #print("line#", count, "\n", line)
     # tokens = line.split(' ')
     tokens = tokenizer.tokenize(line)
-
 
     #print("Line#", count, "Properties \n")
     for token in tokens:
@@ -79,8 +79,10 @@ for line in program:
             elif token in keyword_key:
                 #print("keyword", operators[token])
                 print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), keyword[token])
-
-            
+            elif token in unrecognized_key:
+                print('*** Error line {}.'.format(count))
+                print('*** Unrecognized char: \'{}\''.format(token))
+                print('\n')
             else:
                 print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_Identifier')
         
