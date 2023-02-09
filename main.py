@@ -2,8 +2,8 @@
 #UTSA ID: btz670
 
 from nltk.tokenize import RegexpTokenizer, WordPunctTokenizer
-#tokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
-tokenizer = WordPunctTokenizer()
+tokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+ | ((?<![\\])[\'\"])')
+#tokenizer = WordPunctTokenizer()
 
 
 # To open File
@@ -36,15 +36,17 @@ for line in program:
     tokens = tokenizer.tokenize(line)
 
 
-    #print("Tokens", tokens)
-
     #print("Line#", count, "Properties \n")
     for token in tokens:
         val_isint = False
         val_isfloat = False
+        val_isstring = False
 
         if token in empty_key:
             break
+
+        if token[0]== "\"" and token[-1]=="\"":
+            val_isstring = True
 
         try:
             num_token = int(token)
@@ -60,7 +62,7 @@ for line in program:
             except:
                 pass
         
-        if not val_isint and not val_isfloat: 
+        if not val_isint and not val_isfloat and not val_isstring: 
 
             if token in operators_key:
                 #print("operator", operators[token])
