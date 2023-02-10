@@ -4,25 +4,35 @@ class DecafTokenizer:
     def __init__(self) -> None:
         self.Keywords = "void|int|double|bool|string|null|for|while|if|else|return|break|Print|ReadInteger|ReadLine|true|false"
         self.Operators = "(\++)|(-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|[=]"
-        self.Numerals = "^\d*\.?\d*$"
-        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(\)|\(|\)|{}|\[\]|\""
+        # self.Numerals = "^\d*\.?\d*$"
+        self.Int = '^[-+]?[0-9]+$'
+        self.Float = '^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$'
+        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(\)|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "^[a-zA-Z_]+[a-zA-Z0-9_]*"
 
     def tokenize(self,line):
         self.tokens = []
         paternKeywords = re.compile(self.Keywords)
         paternOperators = re.compile(self.Operators)
-        paternNumerals = re.compile(self.Numerals)
+        paternInt = re.compile(self.Int)
+        paterFloat = re.compile(self.Float)
         paternSpecialChar = re.compile(self.Special_Char)
         paternIdentifiers = re.compile(self.Identifiers)
 
+        try:
+            if line[0] == "\"" and line[-1] == "\"" or line == "" or line == " " :
+                self.tokens.append(line)
+        except:
+            pass
         if paternKeywords.search(line):
-            self.tokens.append((re.search(paternKeywords,line).group(0)))        
+            self.tokens.append((re.search(paternKeywords,line).group(0)))    
         elif paternOperators.search(line):
             self.tokens.append((re.search(paternOperators,line).group(0)))        
-        elif paternNumerals.search(line):
-            self.tokens.append((re.search(paternNumerals,line).group(0)))
-        elif paternSpecialChar.search(line):
+        elif paternInt.search(line):
+            self.tokens.append((re.search(paternInt,line).group(0)))
+        elif paterFloat.search(line):
+            self.tokens.append((re.search(paterFloat,line).group(0)))
+        elif paternSpecialChar.search(line):        
             self.tokens.append((re.search(paternSpecialChar,line).group(0)))
         elif paternIdentifiers.search(line):
             self.tokens.append((re.search(paternIdentifiers,line).group(0)))
@@ -38,10 +48,12 @@ class DecafTokenizer:
     def get_RegEx(self):
         Keywords = self.Keywords
         Operators = self.Operators
-        Numerals = self.Numerals
+        #Numerals = self.Numerals
+        Int = self.Int
+        Float = self.Float
         Special_Characters = self.Special_Char
         Identifiers = self.Identifiers
-        return Keywords, Operators, Numerals, Special_Characters, Identifiers
+        return Keywords,Operators,Int,Float,Special_Characters,Identifiers
 
     def get_dictionaries(self):
         operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<=':'T_LessEqual', '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
@@ -60,3 +72,10 @@ class DecafTokenizer:
         empty_key = empty.keys()
 
         return operators, data_type, punctuation, keyword, empty
+
+        
+    def remove_Comments(self,program):
+        program_Multi_Comments_Removed = re.sub("/\*[^*]*\*+(?:[^/*][^*]*\*+)*/", "", program)
+        program_Single_Comments_Removed = re.sub("//.*", "", program_Multi_Comments_Removed)
+        program_Comments_removed = program_Single_Comments_Removed
+        return program_Comments_removed
