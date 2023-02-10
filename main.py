@@ -1,90 +1,46 @@
-#By Eulises Franco
-#UTSA ID: btz670
+import re
+from utils import DecafTokenizer
 
-from nltk.tokenize import RegexpTokenizer, WordPunctTokenizer
-tokenizer = WordPunctTokenizer()
+tokenizer = DecafTokenizer()
 
-
-# To open File
-file = open("samples/badstring.frag")
-operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<':"'<'", '<=':'T_LessEqual', '>':"'>'", '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
-operators_key = operators.keys()
-
-data_type = {'void':'T_Void', 'int' : 'T_Int', 'double': 'T_Double', 'string':'T_String'}
-data_type_key = data_type.keys()
-
-punctuation = {';':"';'", ',':"','", '.':"'.'", '(':"'('", ')':"')'", '{':"'{'", '}':"'}'", '!':"'!'"}
-punctuation_key = punctuation.keys()
-
-keyword = {'while':'T_While', 'if':'T_If', 'else':'T_Else', 'return':'T_Return', 'break':'T_Break', 'true':'T_BoolConstant (value = true)', 'false':'T_BoolConstant (value = false)'}
-keyword_key = keyword.keys()
-
-empty = {'':''}
-empty_key = empty.keys()
-
-unrecognized_key = {'$':'*** Unrecognized char: \'$\'' , '@':'*** Unrecognized char: \'@\'' , '^':'*** Unrecognized char: \'^\'' , '&':'*** Unrecognized char: \'&\''  , '~':'*** Unrecognized char: \'~\'' , '`':'*** Unrecognized char: \'`\'' , '?':'*** Unrecognized char: \'?\''}
+file = open("samples/reserve_op.frag")
 
 a = file.read()
+
+Keywords, Operators, Numerals, Special_Characters, Identifiers = tokenizer.get_RegEx()
+operators_key, data_type_key, punctuation_key, keyword_key, empty_key = tokenizer.get_dictionaries()
 
 count = 0
 
 program = a.split("\n")
-
 for line in program:
     count += 1
-    #print("line#", count, "\n", line)
-    # tokens = line.split(' ')
     tokens = tokenizer.tokenize(line)
-
-    #print("Line#", count, "Properties \n")
     for token in tokens:
-        val_isint = False
-        val_isfloat = False
-        val_isstring = False
-
-        if token in empty_key:
+        if token == 'Unidentified Token':
+            break
+        if token == '':
             break
 
-        if token[0]== "\"" and token[-1]=="\"":
-            val_isstring = True
-
-        try:
-            num_token = int(token)
-            if isinstance(num_token,int):
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_IntConstant (value = {})'.format(token))
-                val_isint = True
-        except:
-            try:
-                num_token = float(token)
-                if isinstance(token,float):
-                    print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_IntConstant (value = {})'.format(token))
-                    val_isfloat = True
-            except:
-                pass
+        if re.search(Keywords,token):
+            match = re.search(Keywords,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), keyword_key[token])
         
-        if not val_isint and not val_isfloat and not val_isstring: 
-
-            if token in operators_key:
-                #print("operator", operators[token])
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), operators[token])
-
-            elif token in data_type_key:
-                #print("data_type", operators[token])
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), data_type[token])
-
-            elif token in punctuation_key:
-                #print("punctuation", operators[token])
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), punctuation[token])
-
-            elif token in keyword_key:
-                #print("keyword", operators[token])
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), keyword[token])
-            elif token in unrecognized_key:
-                print('*** Error line {}.'.format(count))
-                print('*** Unrecognized char: \'{}\''.format(token))
-                print('\n')
-            else:
-                print(token, (11-len(token))*" ", "line", count, 'cols', '1-'+str(len(token)), 'is T_Identifier')
+        elif re.search(Operators,token):
+            match = re.search(Operators,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
         
-        else:
+        elif re.search(Numerals,token):
+            match = re.search(Numerals,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), match.group())
+        
+        elif re.search(Special_Characters, token):
+            match = re.search(Special_Characters,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), punctuation_key[token])
+        
+        elif re.search(Identifiers,token):
+            match = re.search(Identifiers,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_Identifier')
+
+        elif re.search('Unidentified Token',token):
             pass
