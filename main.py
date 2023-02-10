@@ -3,7 +3,7 @@ from utils import DecafTokenizer
 
 tokenizer = DecafTokenizer()
 
-file = open("samples/baddouble.frag")
+file = open("samples/ident.frag")
 
 a = file.read()
 
