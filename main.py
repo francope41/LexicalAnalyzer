@@ -20,6 +20,7 @@ for line in program:
     tokens = tokenizer.tokenize(line)
     for token in tokens:
         str_token = False
+        float_token = False
 
         if token == 'Unidentified Token':
             break
@@ -35,10 +36,6 @@ for line in program:
             match = re.search(Keywords,token)
             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), keyword_key[token])
 
-        elif re.search(Operators,token) and not str_token:
-            match = re.search(Operators,token)
-            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
-
         elif re.search(Int,token) and not str_token:
             match = re.search(Int,token)
             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
@@ -46,14 +43,24 @@ for line in program:
         elif re.search(Float,token) and not str_token:
             match = re.search(Float,token)
             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
+            float_token = True
+
+        elif re.search(Operators,token) and not str_token and not float_token:
+            match = re.search(Operators,token)
+            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
+
+        
 
         elif re.search(Special_Characters, token) and not str_token:
             match = re.search(Special_Characters,token)
             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), punctuation_key[token])
-        
+
         elif re.search(Identifiers,token) and not str_token:
             match = re.search(Identifiers,token)
             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_Identifier')
 
         elif re.search('Unidentified Token',token):
             pass
+
+        else:
+            print('else')

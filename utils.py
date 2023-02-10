@@ -6,7 +6,7 @@ class DecafTokenizer:
         self.Operators = "(\++)|(-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|[=]"
         # self.Numerals = "^\d*\.?\d*$"
         self.Int = '^[-+]?[0-9]+$'
-        self.Float = '^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$'
+        self.Float = '^[-+]?[0-9]*\.?[0-9]+(.?[eE][-+]?[0-9]+)?$'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(\)|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "^[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = " [^\s\"\']+|\"([^\"]*)\"|\'([^\']*)\'"
@@ -22,23 +22,37 @@ class DecafTokenizer:
         paterString = re.compile(self.String)
 
         str_token = False
+        Float_token = False
 
         if paterString.search(line):
             found_tokens = [tk[0] for tk in re.findall(paterString,line)]
             for tk in found_tokens: self.tokens.append("\"{}\"".format(tk))
 
         elif paternKeywords.search(line) and not str_token:
-            self.tokens.append((re.search(paternKeywords,line).group(0)))    
-        elif paternOperators.search(line) and not str_token:
-            self.tokens.append((re.search(paternOperators,line).group(0)))        
+            self.tokens.append((re.search(paternKeywords,line).group(0)))
+            #print('Key Findall',re.findall(paternKeywords,line))
+
+
         elif paternInt.search(line) and not str_token:
             self.tokens.append((re.search(paternInt,line).group(0)))
+            #print('int Findall',re.findall(paternInt,line))
+
         elif paterFloat.search(line) and not str_token:
             self.tokens.append((re.search(paterFloat,line).group(0)))
-        elif paternSpecialChar.search(line) and not str_token:        
-            self.tokens.append((re.search(paternSpecialChar,line).group(0)))
+            #print('Float Findall',re.findall(paterFloat,line))
+
+        elif paternOperators.search(line) and not str_token and not Float_token:
+            self.tokens.append((re.search(paternOperators,line).group(0)))     
+            #print('Oper Findall',re.findall(paternOperators,line))
+
         elif paternIdentifiers.search(line) and not str_token:
             self.tokens.append((re.search(paternIdentifiers,line).group(0)))
+           # print('Iden Findall',re.findall(paternIdentifiers,line))
+
+        elif paternSpecialChar.search(line) and not str_token:        
+            self.tokens.append((re.search(paternSpecialChar,line).group(0)))
+            #print('Spcch Findall',re.findall(paternSpecialChar,line))
+
         elif line == "":
             self.tokens.append(line)    
         else:
