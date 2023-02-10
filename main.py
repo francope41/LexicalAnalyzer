@@ -17,7 +17,6 @@ for line in program:
     count += 1
     tokens = tokenizer.tokenize(line)
     for token in tokens:
-        print('token',token)
         if token == 'Unidentified Token':
             break
         if token == '':
