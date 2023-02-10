@@ -9,6 +9,7 @@ class DecafTokenizer:
         self.Float = '^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(\)|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "^[a-zA-Z_]+[a-zA-Z0-9_]*"
+        self.String = " [^\s\"\']+|\"([^\"]*)\"|\'([^\']*)\'"
 
     def tokenize(self,line):
         self.tokens = []
@@ -18,23 +19,25 @@ class DecafTokenizer:
         paterFloat = re.compile(self.Float)
         paternSpecialChar = re.compile(self.Special_Char)
         paternIdentifiers = re.compile(self.Identifiers)
+        paterString = re.compile(self.String)
 
-        try:
-            if line[0] == "\"" and line[-1] == "\"" or line == "" or line == " " :
-                self.tokens.append(line)
-        except:
-            pass
-        if paternKeywords.search(line):
+        str_token = False
+
+        if paterString.search(line):
+            found_tokens = [tk[0] for tk in re.findall(paterString,line)]
+            for tk in found_tokens: self.tokens.append("\"{}\"".format(tk))
+
+        elif paternKeywords.search(line) and not str_token:
             self.tokens.append((re.search(paternKeywords,line).group(0)))    
-        elif paternOperators.search(line):
+        elif paternOperators.search(line) and not str_token:
             self.tokens.append((re.search(paternOperators,line).group(0)))        
-        elif paternInt.search(line):
+        elif paternInt.search(line) and not str_token:
             self.tokens.append((re.search(paternInt,line).group(0)))
-        elif paterFloat.search(line):
+        elif paterFloat.search(line) and not str_token:
             self.tokens.append((re.search(paterFloat,line).group(0)))
-        elif paternSpecialChar.search(line):        
+        elif paternSpecialChar.search(line) and not str_token:        
             self.tokens.append((re.search(paternSpecialChar,line).group(0)))
-        elif paternIdentifiers.search(line):
+        elif paternIdentifiers.search(line) and not str_token:
             self.tokens.append((re.search(paternIdentifiers,line).group(0)))
         elif line == "":
             self.tokens.append(line)    
@@ -53,7 +56,8 @@ class DecafTokenizer:
         Float = self.Float
         Special_Characters = self.Special_Char
         Identifiers = self.Identifiers
-        return Keywords,Operators,Int,Float,Special_Characters,Identifiers
+        String = self.String
+        return Keywords,Operators,Int,Float,Special_Characters,Identifiers, String
 
     def get_dictionaries(self):
         operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<=':'T_LessEqual', '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
