@@ -3,7 +3,7 @@ from utils import DecafTokenizer
 
 tokenizer = DecafTokenizer()
 
-file = open("samples/reserve_op.frag")
+file = open("samples/baddouble.frag")
 
 a = file.read()
 
@@ -17,6 +17,7 @@ for line in program:
     count += 1
     tokens = tokenizer.tokenize(line)
     for token in tokens:
+        print('token',token)
         if token == 'Unidentified Token':
             break
         if token == '':
