@@ -3,7 +3,7 @@ import re
 class DecafTokenizer:
     def __init__(self) -> None:
         self.Keywords = "void|int|double|bool|string|null|for|while|if|else|return|break|Print|ReadInteger|ReadLine|true|false"
-        self.Operators = "(\++)|(-)|(=)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}"
+        self.Operators = "(\++)|(-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|[=]"
         self.Numerals = "^(\d+)$"
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(\)|\(|\)|{}|\[\]|\""
         self.Identifiers = "^[a-zA-Z_]+[a-zA-Z0-9_]*"
