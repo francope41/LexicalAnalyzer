@@ -29,6 +29,8 @@ class Lex_Analyzer:
                     str_token = False
                     float_token = False
 
+                    #print(token)
+
                     if token == 'Unidentified Token':
                         pass
                     if token == '':

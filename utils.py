@@ -8,7 +8,8 @@ class DecafTokenizer:
         self.Float = '[-+]?[0-9]*\.?[0-9]+(.?[eE][-+]?[0-9]+)?'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
-        self.String = "[\"][\w\s]+[\"]"
+        self.String = "\"(.*?)\""
+
 
     def tokenize(self,line):
         self.tokens, StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
@@ -21,30 +22,29 @@ class DecafTokenizer:
         paternIdentifiers = re.compile(self.Identifiers)
         paterString = re.compile(self.String)
 
-        str_token = False
         Float_token = False
 
         if paterString.search(line):
+                #self.tokens = self.tokens
             StringTokens = [tk for tk in re.findall(paterString,line)]
-            #print('1',StringTokens)
-            for tk in StringTokens: self.tokens.append("{}".format(tk))
-            str_token = True
+            for tk in StringTokens:
+                self.tokens.append("\"{}\"".format(tk))
         
         else:
 
-            if paternKeywords.search(line) and not str_token:
+            if paternKeywords.search(line):
                 KeywordTokens = [tk for tk in re.findall(paternKeywords,line)]
                 #print('2',KeywordTokens)
                 for tk in KeywordTokens: self.tokens.append(tk)
 
-            if paternIdentifiers.search(line) and not str_token:
+            if paternIdentifiers.search(line):
                 IdentifierTokens = [tk for tk in re.findall(paternIdentifiers,line)]
                 #print('6',IdentifierTokens)
                 for tk in IdentifierTokens: 
                     if tk in KeywordTokens: pass 
                     else: self.tokens.append(tk)
 
-            if paternOperators.search(line) and not str_token and not Float_token:
+            if paternOperators.search(line) and not Float_token:
                 OperatorTokens = [tk for tk in re.findall(paternOperators,line)]
                 for tk in OperatorTokens:
                     for i in tk:
@@ -53,23 +53,20 @@ class DecafTokenizer:
                         else:
                             self.tokens.append(i)
 
-            if paterFloat.search(line) and not str_token:
+            if paterFloat.search(line) :
                 FloatTokens = [tk for tk in re.findall(paterFloat,line)]
                 #print('4',FloatTokens)
                 for tk in FloatTokens: self.tokens.append(tk)
 
-            if paternInt.search(line) and not str_token:
+            if paternInt.search(line) :
                         IntTokens = [tk for tk in re.findall(paternInt,line)]
                         #print('3',IntTokens)
                         for tk in IntTokens: self.tokens.append(tk)
 
-            if paternSpecialChar.search(line) and not str_token:        
+            if paternSpecialChar.search(line):        
                 SpecialCharTokens = [tk for tk in re.findall(paternSpecialChar,line)]
                 #print('7',SpecialCharTokens)
                 for tk in SpecialCharTokens: self.tokens.append(tk)
-
-            if line == "":
-                self.tokens = self.tokens
 
         if self.tokens:
             return self.tokens
