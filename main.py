@@ -3,7 +3,7 @@ import re
 from utils import DecafTokenizer
 
 class Lex_Analyzer:
-    def __init__(self, file_path) -> None:
+    def __init__(self, file_path):
         file_path = file_path
     
         tokenizer = DecafTokenizer()
@@ -20,53 +20,55 @@ class Lex_Analyzer:
         no_comments_a = tokenizer.remove_Comments(a)
 
         program = no_comments_a.split("\n")
+        
         for line in program:
             count += 1
             tokens = tokenizer.tokenize(line)
-            for token in tokens:
-                str_token = False
-                float_token = False
+            if tokens is not None:
+                for token in tokens:
+                    str_token = False
+                    float_token = False
 
-                if token == 'Unidentified Token':
-                    break
-                if token == '':
-                    break
+                    if token == 'Unidentified Token':
+                        pass
+                    if token == '':
+                        pass
 
-                if re.search(String,token):
-                    match = re.search(String,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_StringConstant (value = {})'.format(token))
-                    str_token = True
-                
-                elif re.search(Keywords,token) and not str_token:
-                    match = re.search(Keywords,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), keyword_key[token])
+                    if re.search(String,token):
+                        match = re.search(String,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_StringConstant (value = {})'.format(token))
+                        str_token = True
+                    
+                    elif re.search(Keywords,token) and not str_token:
+                        match = re.search(Keywords,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), keyword_key[token])
+                    
+                    elif re.search(Float,token) and not str_token:
+                        match = re.search(Float,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
+                        float_token = True
+                    
+                    elif re.search(Int,token) and not str_token:
+                        match = re.search(Int,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
 
-                elif re.search(Int,token) and not str_token:
-                    match = re.search(Int,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
-                
-                elif re.search(Float,token) and not str_token:
-                    match = re.search(Float,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
-                    float_token = True
+                    elif re.search(Operators,token) and not str_token and not float_token:
+                        match = re.search(Operators,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
 
-                elif re.search(Operators,token) and not str_token and not float_token:
-                    match = re.search(Operators,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
+                    elif re.search(Special_Characters, token) and not str_token:
+                        match = re.search(Special_Characters,token)
+                        try:
+                            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), punctuation_key[token])
+                        except:
+                            print('\n*** Error line {}.\n'.format(count), ' *** Unrecognized char: \'{}\'\n'.format((token)))
 
-                elif re.search(Special_Characters, token) and not str_token:
-                    match = re.search(Special_Characters,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), punctuation_key[token])
+                    elif re.search(Identifiers,token) and not str_token:
+                        match = re.search(Identifiers,token)
+                        print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_Identifier')
 
-                elif re.search(Identifiers,token) and not str_token:
-                    match = re.search(Identifiers,token)
-                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), 'is T_Identifier')
-
-                elif re.search('Unidentified Token',token):
-                    pass
-
-                else:
-                    print('else')
+                    elif re.search('Unidentified Token',token):
+                        pass
 
 
 Lex_Analyzer(sys.argv[1])
