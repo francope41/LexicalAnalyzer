@@ -54,8 +54,6 @@ class Lex_Analyzer:
                     match = re.search(Operators,token)
                     print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), operators_key[token])
 
-                
-
                 elif re.search(Special_Characters, token) and not str_token:
                     match = re.search(Special_Characters,token)
                     print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start())+'-'+ str(match.end()), punctuation_key[token])
