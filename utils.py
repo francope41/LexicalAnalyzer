@@ -69,14 +69,14 @@ class DecafTokenizer:
 
         if self.tokens:
             #match_Str,match_Kw,match_Id,match_Op,match_Flt,match_Int,match_SpCh = self.get_matches_index(line)
-
             for token in self.tokens:
                 m = line.find(token)
                 Order_tokens[token] = m
 
-            
+            Order_tokens = dict(sorted(Order_tokens.items(), key=lambda item: item[1]))
+            Ordered_Tokens = list(Order_tokens.keys())
 
-            return self.tokens
+            return Ordered_Tokens 
         #return [tok for tok in pattern.split(line) if tok]
 
     def get_RegEx(self):
