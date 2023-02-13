@@ -74,7 +74,8 @@ class DecafTokenizer:
                 m = line.find(token)
                 Order_tokens[token] = m
 
-            print(Order_tokens)    
+            
+
             return self.tokens
         #return [tok for tok in pattern.split(line) if tok]
 
