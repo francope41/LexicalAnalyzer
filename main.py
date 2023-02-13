@@ -26,9 +26,8 @@ class Lex_Analyzer:
             tokens = tokenizer.tokenize(line)
             if tokens is not None:
                 for token in tokens:
-                    str_token = False
                     float_token = False
-
+                    kewrd_token = False
 
                     if token == '':
                         pass
@@ -42,6 +41,19 @@ class Lex_Analyzer:
                         if re.search(Keywords,token) :
                             match = re.search(Keywords,token)
                             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), keyword_key[token])
+                            kewrd_token = True
+
+                        if re.search(Identifiers,token) and not kewrd_token:
+                            match = re.search(Identifiers,token)
+                            truncated = False
+                            if len(token) > 31:
+                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
+                                trunc_token = token[0:31]
+ 
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
+                            else:
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
+
                         
                         if re.search(Float,token) :
                             if "." in token:
@@ -73,17 +85,6 @@ class Lex_Analyzer:
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), punctuation_key[token])
                             except:
                                 print('\n*** Error line {}.'.format(count), '\n*** Unrecognized char: \'{}\'\n'.format((token)))
-
-                        elif re.search(Identifiers,token) :
-                            match = re.search(Identifiers,token)
-                            truncated = False
-                            if len(token) > 31:
-                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
-                                trunc_token = token[0:31]
- 
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
-                            else:
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
 
 
                         elif re.search('Unidentified Token',token):

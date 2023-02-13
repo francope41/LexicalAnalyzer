@@ -12,7 +12,6 @@ class DecafTokenizer:
 
     def tokenize(self,line):
         self.tokens ,StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
-        Order_tokens = {}
         disordered_Tokens, Ordered_Tokens = [],[]
         self.paterString = re.compile(self.String)
         self.paternKeywords = re.compile(self.Keywords)
@@ -23,6 +22,7 @@ class DecafTokenizer:
         self.paternSpecialChar = re.compile(self.Special_Char)
 
         Float_token = False
+        Ident_token = False
 
         if self.paterString.search(line):
             StringTokens = [tk for tk in re.findall(self.paterString,line)]
@@ -32,12 +32,13 @@ class DecafTokenizer:
         else:
             if self.paternKeywords.search(line):
                 #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,line)]
-                KeywordTokens = [tk for tk in re.finditer(self.paternKeywords,line)]                
+                KeywordTokens = [tk for tk in re.findall(self.paternKeywords,line)]                
                 for tk in KeywordTokens: self.tokens.append(tk)
+
 
             if self.paternIdentifiers.search(line):
                 IdentifierTokens = [tk for tk in re.findall(self.paternIdentifiers,line)]
-                for tk in IdentifierTokens: 
+                for tk in IdentifierTokens:
                     if tk in KeywordTokens: pass 
                     else: self.tokens.append(tk)
 
@@ -79,16 +80,11 @@ class DecafTokenizer:
             for token in self.tokens:
                 m = line.find(token)
                 disordered_Tokens.append((token,m))
-                #Order_tokens[token] = m
 
-            #Order_tokens = dict(sorted(Order_tokens.items(), key=lambda item: item[1]))
             Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
             for tk in Sorted_Tokens:
                 Ordered_Tokens.append(tk[0])
-            #Ordered_Tokens = list(Order_tokens.keys())
-
             return Ordered_Tokens 
-        #return [tok for tok in pattern.split(line) if tok]
 
     def get_RegEx(self):
         Keywords = self.Keywords
