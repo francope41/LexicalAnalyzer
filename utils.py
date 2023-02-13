@@ -4,7 +4,7 @@ class DecafTokenizer:
     def __init__(self):
         self.Keywords = "^void$|^int$|^double$|^bool$|^string$|^null$|^for$|^while$|^if$|^else$|^return$|^break$|^Print$|^ReadInteger$|^ReadLine$|^true$|^false$"
         self.Operators = "(\++)|(\-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|(=)"
-        self.Int = '[-+]?[0-9]+'
+        self.Int = '[-+]?[0-9][0-9]*'
         self.Float = '[-+]?[0-9]*\.?[0-9]+(.?[eE][-+]?[0-9]+)?'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
@@ -13,6 +13,7 @@ class DecafTokenizer:
     def tokenize(self,line):
         self.tokens ,StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
         Order_tokens = {}
+        disordered_Tokens, Ordered_Tokens = [],[]
         self.paterString = re.compile(self.String)
         self.paternKeywords = re.compile(self.Keywords)
         self.paternIdentifiers = re.compile(self.Identifiers)
@@ -24,7 +25,6 @@ class DecafTokenizer:
         Float_token = False
 
         if self.paterString.search(line):
-                #self.tokens = self.tokens
             StringTokens = [tk for tk in re.findall(self.paterString,line)]
             for tk in StringTokens:
                 self.tokens.append("\"{}\"".format(tk))
@@ -33,12 +33,10 @@ class DecafTokenizer:
             if self.paternKeywords.search(line):
                 #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,line)]
                 KeywordTokens = [tk for tk in re.finditer(self.paternKeywords,line)]                
-                #print('2',KeywordTokens)
                 for tk in KeywordTokens: self.tokens.append(tk)
 
             if self.paternIdentifiers.search(line):
                 IdentifierTokens = [tk for tk in re.findall(self.paternIdentifiers,line)]
-                #print('6',IdentifierTokens)
                 for tk in IdentifierTokens: 
                     if tk in KeywordTokens: pass 
                     else: self.tokens.append(tk)
@@ -52,29 +50,42 @@ class DecafTokenizer:
                         else:
                             self.tokens.append(i)
 
-            if self.paterFloat.search(line) :
+            if self.paterFloat.search(line):
                 FloatTokens = [tk for tk in re.findall(self.paterFloat,line)]
-                #print('4',FloatTokens)
-                for tk in FloatTokens: self.tokens.append(tk)
+                for tk in FloatTokens:
+                    try:
+                        int_check = float(tk)
+                    except:
+                        int_check = None
+
+                    if int_check is not None:
+                        if "." in tk:
+                            self.tokens.append(tk)
+                        else:
+                            pass
+                    else:
+                        pass
 
             if self.paternInt.search(line) :
                         IntTokens = [tk for tk in re.findall(self.paternInt,line)]
-                        #print('3',IntTokens)
                         for tk in IntTokens: self.tokens.append(tk)
 
             if self.paternSpecialChar.search(line):        
                 SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,line)]
-                #print('7',SpecialCharTokens)
                 for tk in SpecialCharTokens: self.tokens.append(tk)
 
         if self.tokens:
             #match_Str,match_Kw,match_Id,match_Op,match_Flt,match_Int,match_SpCh = self.get_matches_index(line)
             for token in self.tokens:
                 m = line.find(token)
-                Order_tokens[token] = m
+                disordered_Tokens.append((token,m))
+                #Order_tokens[token] = m
 
-            Order_tokens = dict(sorted(Order_tokens.items(), key=lambda item: item[1]))
-            Ordered_Tokens = list(Order_tokens.keys())
+            #Order_tokens = dict(sorted(Order_tokens.items(), key=lambda item: item[1]))
+            Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
+            for tk in Sorted_Tokens:
+                Ordered_Tokens.append(tk[0])
+            #Ordered_Tokens = list(Order_tokens.keys())
 
             return Ordered_Tokens 
         #return [tok for tok in pattern.split(line) if tok]
