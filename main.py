@@ -54,7 +54,12 @@ class Lex_Analyzer:
                         if re.search(Int,token) :
                             try:
                                 match = re.search(Int,token)
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
+                                if "+" in token or "-" in token:
+                                    token = token[1:]
+                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
+                                else:
+                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
+                                    
                             except:
                                 pass
                         
@@ -67,13 +72,13 @@ class Lex_Analyzer:
                             try:
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), punctuation_key[token])
                             except:
-                                print('\n*** Error line {}.\n'.format(count), ' *** Unrecognized char: \'{}\'\n'.format((token)))
+                                print('\n*** Error line {}.'.format(count), '\n*** Unrecognized char: \'{}\'\n'.format((token)))
 
                         elif re.search(Identifiers,token) :
                             match = re.search(Identifiers,token)
                             truncated = False
                             if len(token) > 31:
-                                print('\n*** Error line {}.\n'.format(count), ' *** Identifier too long: \"{}\"\n'.format((token)))
+                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
                                 trunc_token = token[0:31]
  
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
