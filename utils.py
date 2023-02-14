@@ -4,8 +4,9 @@ class DecafTokenizer:
     def __init__(self):
         self.Keywords = "^void$|^int$|^double$|^bool$|^string$|^null$|^for$|^while$|^if$|^else$|^return$|^break$|^Print$|^ReadInteger$|^ReadLine$|^true$|^false$"
         self.Operators = "(\++)|(\-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|(=)"
-        self.Int = '[-+]?[0-9][0-9]*'
-        self.Float = '[-+]?[0-9]*\.?[0-9]+(.?[eE][-+]?[0-9]+)?'
+        self.Int = '([+-]?[0-9]+(?:\.[0-9]+)?)'
+        self.Float = '^[-+]?([0-9]*[.])?[0-9]+([eE][-+]?\d+)?$'
+        #self.Float = '[+-]?\d+([.]\d+)?([Ee][+-]?\d+)?'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = "\"(.*?)\""
@@ -67,16 +68,18 @@ class DecafTokenizer:
                     else:
                         pass
 
-            if self.paternInt.search(line) :
-                        IntTokens = [tk for tk in re.findall(self.paternInt,line)]
-                        for tk in IntTokens: self.tokens.append(tk)
+            if self.paternInt.search(line):
+                IntTokens = [tk for tk in re.findall(self.paternInt,line)]
+                for tk in IntTokens:
+                    #print(tk)
 
-            if self.paternSpecialChar.search(line):        
+                    self.tokens.append(tk)
+
+            elif self.paternSpecialChar.search(line):        
                 SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,line)]
                 for tk in SpecialCharTokens: self.tokens.append(tk)
 
         if self.tokens:
-            #match_Str,match_Kw,match_Id,match_Op,match_Flt,match_Int,match_SpCh = self.get_matches_index(line)
             for token in self.tokens:
                 m = line.find(token)
                 disordered_Tokens.append((token,m))
@@ -84,7 +87,8 @@ class DecafTokenizer:
             Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
             for tk in Sorted_Tokens:
                 Ordered_Tokens.append(tk[0])
-            return Ordered_Tokens 
+                 
+            return Ordered_Tokens
 
     def get_RegEx(self):
         Keywords = self.Keywords
@@ -107,35 +111,16 @@ class DecafTokenizer:
         punctuation = {';':"';'", ',':"','", '.':"'.'", '(':"'('", ')':"')'", '{':"'{'", '}':"'}'", '!':"'!'",'<':"'<'",'>':"'>'"}
         punctuation_key = punctuation.keys()
 
-        keyword = {'while':'T_While', 'if':'T_If', 'else':'T_Else', 'return':'T_Return', 'break':'T_Break', 'true':'T_BoolConstant (value = true)', 'false':'T_BoolConstant (value = false)','void':'T_Void', 'int' : 'T_Int', 'double': 'T_Double', 'string':'T_String'}
+        keyword = {'while':'T_While', 'if':'T_If', 'else':'T_Else', 'return':'T_Return', 'break':'T_Break', 'true':'T_BoolConstant (value = true)', 
+                   'false':'T_BoolConstant (value = false)','void':'T_Void', 'int' : 'T_Int', 'double': 'T_Double', 'string':'T_String',
+                   'bool':'T_Bool','null':'T_Null','for':'T_For','Print':'T_Print','ReadInteger':'T_ReadInteger','ReadLine':'T_ReadLine'}
         keyword_key = keyword.keys()
+
 
         empty = {'':''}
         empty_key = empty.keys()
 
         return operators, data_type, punctuation, keyword, empty
-
-    def get_matches_index(self, line):
-        match_Str = re.search(self.paterString,line)
-        match_Kw = re.search(self.paternKeywords,line)
-        match_Id = re.search(self.paternIdentifiers,line)
-        match_Op = re.search(self.paternOperators,line)
-        match_Flt = re.search(self.paterFloat,line)
-        match_Int = re.search(self.paternInt,line)
-        match_SpCh = re.search(self.paternSpecialChar,line)
-
-        if match_Str is not None:
-            print(match_Str.start())
-        if match_Kw is not None:
-            print(match_Kw.start())
-        if match_Id is not None:
-            print(match_Id.start())
-        if match_Op is not None:
-            print(match_Op.start())
-        if match_Flt is not None:
-            print(match_Flt.start())
-
-        return match_Str,match_Kw,match_Id,match_Op,match_Flt,match_Int,match_SpCh
 
     def remove_Comments(self,program):
         program_Multi_Comments_Removed = re.sub("/\*[^*]*\*+(?:[^/*][^*]*\*+)*/", "", program)

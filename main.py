@@ -28,6 +28,7 @@ class Lex_Analyzer:
                 for token in tokens:
                     float_token = False
                     kewrd_token = False
+                    punc_token = False
 
                     if token == '':
                         pass
@@ -45,7 +46,6 @@ class Lex_Analyzer:
 
                         if re.search(Identifiers,token) and not kewrd_token:
                             match = re.search(Identifiers,token)
-                            truncated = False
                             if len(token) > 31:
                                 print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
                                 trunc_token = token[0:31]
@@ -55,7 +55,7 @@ class Lex_Analyzer:
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
 
                         
-                        if re.search(Float,token) :
+                        if re.search(Float,token):
                             if "." in token:
                                 match = re.search(Float,token)
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
