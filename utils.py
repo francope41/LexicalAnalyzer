@@ -6,7 +6,6 @@ class DecafTokenizer:
         self.Operators = "(\++)|(\-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|(=)"
         self.Int = '([+-]?[0-9]+(?:\.[0-9]+)?)'
         self.Float = '^[-+]?([0-9]*[.])?[0-9]+([eE][-+]?\d+)?$'
-        #self.Float = '[+-]?\d+([.]\d+)?([Ee][+-]?\d+)?'
         self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:"
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = "\"(.*?)\""
