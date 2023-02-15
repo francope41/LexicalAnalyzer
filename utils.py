@@ -4,13 +4,15 @@ class DecafTokenizer:
     def __init__(self):
         self.Keywords = "^void$|^int$|^double$|^bool$|^string$|^null$|^for$|^while$|^if$|^else$|^return$|^break$|^Print$|^ReadInteger$|^ReadLine$|^true$|^false$"
         self.Operators = "(\++)|(\-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|(=)"
-        self.Int = '([+-]?[0-9]+(?:\.[0-9]+)?)'
-        self.Float = '^[-+]?([0-9]*[.])?[0-9]+([eE][-+]?\d+)?$'
-        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:"
+        self.Int = '[0-9]+'
+        self.Int_Hex = '0[xX][0-9A-Fa-f]+'
+        self.Float = '[0-9]+\.[0-9]*'
+        self.Float_eE = '[+-]?[0-9]+(?:\.[0-9]+)?\.?[eE][-+]?\d+?$'
+        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:|\."
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = "\"(.*?)\""
 
-    def tokenize(self,line):
+    def tokenize(self,line, count):
         self.tokens ,StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
         disordered_Tokens, Ordered_Tokens = [],[]
         self.paterString = re.compile(self.String)
@@ -18,32 +20,76 @@ class DecafTokenizer:
         self.paternIdentifiers = re.compile(self.Identifiers)
         self.paternOperators = re.compile(self.Operators)
         self.paterFloat = re.compile(self.Float)
+        self.paterFloat_eE = re.compile(self.Float_eE)
         self.paternInt = re.compile(self.Int)
+        self.paternInt_Hex = re.compile(self.Int_Hex)
         self.paternSpecialChar = re.compile(self.Special_Char)
+
+        self.line = line
 
         Float_token = False
         Ident_token = False
 
-        if self.paterString.search(line):
-            StringTokens = [tk for tk in re.findall(self.paterString,line)]
+        if self.paterString.search(self.line):
+            #print('1 STRING DETECTED')
+            StringTokens = [tk for tk in re.findall(self.paterString,self.line)]
             for tk in StringTokens:
                 self.tokens.append("\"{}\"".format(tk))
         
         else:
-            if self.paternKeywords.search(line):
-                #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,line)]
-                KeywordTokens = [tk for tk in re.findall(self.paternKeywords,line)]                
+            if self.paternKeywords.search(self.line):
+                #print('2 KEYWORD DETECTED')
+                #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,self.line)]
+                KeywordTokens = [tk for tk in re.findall(self.paternKeywords,self.line)]                
                 for tk in KeywordTokens: self.tokens.append(tk)
 
+            if self.paterFloat.search(self.line) or self.paterFloat_eE.search(self.line):
+                #print('4 FLOAT DETECTED'
+                if self.paterFloat_eE.search(self.line):
+                    Float_eE_Tokens = [tk for tk in re.findall(self.paterFloat_eE,self.line)]
+                    for tk in Float_eE_Tokens:             
+                        self.line = self.line.replace(tk,'')
+                        self.tokens.append(tk)
+                else:
+                    FloatTokens = [tk for tk in re.findall(self.paterFloat,self.line)]
+                    for tk in FloatTokens:
+                        if tk.startswith('.'):
+                            tk = tk[1:]
+                        try:
+                            self.line = self.line.replace(tk,'')
+                            int_check = float(tk)
+                        except:
+                            int_check = None
 
-            if self.paternIdentifiers.search(line):
-                IdentifierTokens = [tk for tk in re.findall(self.paternIdentifiers,line)]
+                        if int_check is not None:
+                            if "." in tk:
+                                self.tokens.append(tk)
+                            else:
+                                pass
+                        else:
+                            pass
+
+            elif self.paternInt.search(self.line) or self.paternInt_Hex.search(self.line):
+                #print('5 INT DETECTED')
+
+                IntTokens = [tk for tk in re.findall(self.paternInt,self.line)]
+                for tk in IntTokens:
+                    #print(tk)
+
+                    self.tokens.append(tk)
+
+            if self.paternIdentifiers.search(self.line):
+                #print('3 IDENT DETECTED')
+                IdentifierTokens = [tk for tk in re.findall(self.paternIdentifiers,self.line)]
                 for tk in IdentifierTokens:
+                    self.line = self.line.replace(tk,'')
                     if tk in KeywordTokens: pass 
                     else: self.tokens.append(tk)
 
-            if self.paternOperators.search(line) and not Float_token:
-                OperatorTokens = [tk for tk in re.findall(self.paternOperators,line)]
+            if self.paternOperators.search(self.line):
+                #print('6 OPERATOR DETECTED')
+
+                OperatorTokens = [tk for tk in re.findall(self.paternOperators,self.line)]
                 for tk in OperatorTokens:
                     for i in tk:
                         if i == '':
@@ -51,31 +97,10 @@ class DecafTokenizer:
                         else:
                             self.tokens.append(i)
 
-            if self.paterFloat.search(line):
-                FloatTokens = [tk for tk in re.findall(self.paterFloat,line)]
-                for tk in FloatTokens:
-                    try:
-                        int_check = float(tk)
-                    except:
-                        int_check = None
+            if self.paternSpecialChar.search(self.line):  
+                #print('7 SPechar DETECTED')
 
-                    if int_check is not None:
-                        if "." in tk:
-                            self.tokens.append(tk)
-                        else:
-                            pass
-                    else:
-                        pass
-
-            if self.paternInt.search(line):
-                IntTokens = [tk for tk in re.findall(self.paternInt,line)]
-                for tk in IntTokens:
-                    #print(tk)
-
-                    self.tokens.append(tk)
-
-            elif self.paternSpecialChar.search(line):        
-                SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,line)]
+                SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,self.line)]
                 for tk in SpecialCharTokens: self.tokens.append(tk)
 
         if self.tokens:

@@ -23,7 +23,7 @@ class Lex_Analyzer:
         
         for line in program:
             count += 1
-            tokens = tokenizer.tokenize(line)
+            tokens = tokenizer.tokenize(line, count)
             if tokens is not None:
                 for token in tokens:
                     float_token = False
@@ -43,19 +43,8 @@ class Lex_Analyzer:
                             match = re.search(Keywords,token)
                             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), keyword_key[token])
                             kewrd_token = True
-
-                        if re.search(Identifiers,token) and not kewrd_token:
-                            match = re.search(Identifiers,token)
-                            if len(token) > 31:
-                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
-                                trunc_token = token[0:31]
- 
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
-                            else:
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
-
                         
-                        if re.search(Float,token):
+                        elif re.search(Float,token):
                             if "." in token:
                                 match = re.search(Float,token)
                                 print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
@@ -63,7 +52,7 @@ class Lex_Analyzer:
                             else:
                                 pass
 
-                        if re.search(Int,token) :
+                        elif re.search(Int,token) :
                             try:
                                 match = re.search(Int,token)
                                 if "+" in token or "-" in token:
@@ -74,7 +63,18 @@ class Lex_Analyzer:
                                     
                             except:
                                 pass
-                        
+
+                        elif re.search(Identifiers,token) and not kewrd_token or re.search(Identifiers,token) and not float_token:
+                            match = re.search(Identifiers,token)
+                            if len(token) > 31:
+                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
+                                trunc_token = token[0:31]
+ 
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
+                            else:
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
+
+
                         elif re.search(Operators,token)  and not float_token:
                             match = re.search(Operators,token)
                             print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), operators_key[token])
@@ -89,6 +89,9 @@ class Lex_Analyzer:
 
                         elif re.search('Unidentified Token',token):
                             pass
+        print("")
+                            
+                            
 
 
 Lex_Analyzer(sys.argv[1])
