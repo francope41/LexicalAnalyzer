@@ -29,67 +29,95 @@ class Lex_Analyzer:
                     float_token = False
                     kewrd_token = False
                     punc_token = False
-
+                    ident_token = False
                     if token == '':
                         pass
+
+                    if token =="\"":
+                        print('\n*** Error line {}.\n*** Unterminated string constant: \"\n'.format(count))
+
+                    if token.startswith("\"") and not token.endswith("\""):
+                        print('\n*** Error line {}.\n*** Unterminated string constant: {}\n'.format(count,token))
+                        break
 
                     if re.search(String,token):
                         match = re.search(String,token)
                         print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_StringConstant (value = {})'.format(token))
 
                     else:
-                    
                         if re.search(Keywords,token) :
-                            match = re.search(Keywords,token)
-                            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), keyword_key[token])
+                            col_start = line.find(token)
+                            col_end = col_start+len(token)
+                            print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), keyword_key[token])
                             kewrd_token = True
+
+                        elif re.search(Identifiers,token) and not kewrd_token or re.search(Identifiers,token):
+                            col_start = line.find(token)
+                            col_end = col_start+len(token)
+                            iden_col_start = col_start
+                            iden_col_end = col_end
+                            if re.search(Float,token):
+                                pass
+                            else:
+                                if len(token) > 31:
+                                    print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
+                                    trunc_token = token[0:31]
+    
+                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_Identifier (truncated to {})'.format(trunc_token))
+                                else:
+                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_Identifier')
                         
-                        elif re.search(Float,token):
+                        if re.search(Float,token):
                             if "." in token:
-                                match = re.search(Float,token)
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_DoubleConstant (value = {})'.format(float(token)))
+                                col_start = line.find(token)
+                                col_end = col_start+len(token)
+                                
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_DoubleConstant (value = {})'.format(float(token)))
                                 float_token = True
                             else:
                                 pass
 
-                        elif re.search(Int,token) :
-                            try:
-                                match = re.search(Int,token)
-                                if "+" in token or "-" in token:
-                                    token = token[1:]
-                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
+                        elif re.search(Int,token):
+                            #print(token, line)
+                            col_start = line.find(token)
+                            col_end = col_start+len(token)
+                            if token != line:
+                                if iden_col_start <= col_start <= iden_col_end:
+                                    pass
                                 else:
-                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_IntConstant (value = {})'.format(int(token)))
-                                    
-                            except:
-                                pass
-
-                        elif re.search(Identifiers,token) and not kewrd_token or re.search(Identifiers,token) and not float_token:
-                            match = re.search(Identifiers,token)
-                            if len(token) > 31:
-                                print('\n*** Error line {}.'.format(count), '\n*** Identifier too long: \"{}\"\n'.format((token)))
-                                trunc_token = token[0:31]
- 
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier (truncated to {})'.format(trunc_token))
+                                    if "+" in token or "-" in token:
+                                        token = token[1:]
+                                        print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+                                    else:
+                                        print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
                             else:
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), 'is T_Identifier')
+                                try:
+                                    print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+                                except:
+                                    pass
 
+                            
 
                         elif re.search(Operators,token)  and not float_token:
-                            match = re.search(Operators,token)
-                            print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), operators_key[token])
+                            col_start = line.find(token)
+                            col_end = col_start+len(token)
+                            print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), operators_key[token])
 
-                        elif re.search(Special_Characters, token) :
-                            match = re.search(Special_Characters,token)
+                        elif re.search(Special_Characters, token):
+                            col_start = line.find(token)
+                            col_end = col_start+len(token)
                             try:
-                                print(token, (11-len(token))*" ", "line", count, 'cols', str(match.start()+1)+'-'+ str(match.end()), punctuation_key[token])
+                                print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), punctuation_key[token])
                             except:
                                 print('\n*** Error line {}.'.format(count), '\n*** Unrecognized char: \'{}\'\n'.format((token)))
 
 
                         elif re.search('Unidentified Token',token):
                             pass
-        print("")
+
+                        else:
+                            pass#print(token)
+        #print("")
                             
                             
 

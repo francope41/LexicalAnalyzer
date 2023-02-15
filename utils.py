@@ -3,12 +3,12 @@ import re
 class DecafTokenizer:
     def __init__(self):
         self.Keywords = "^void$|^int$|^double$|^bool$|^string$|^null$|^for$|^while$|^if$|^else$|^return$|^break$|^Print$|^ReadInteger$|^ReadLine$|^true$|^false$"
-        self.Operators = "(\++)|(\-)|(\*)|(/)|(%)|(<=)|(>=)|[||]{2}|[==]{2}|(=)"
+        self.Operators = "\++|\-|\*|/|%|<=|>=|[||]{2}|[==]{2}|="
         self.Int = '[0-9]+'
         self.Int_Hex = '0[xX][0-9A-Fa-f]+'
         self.Float = '[0-9]+\.[0-9]*'
         self.Float_eE = '[+-]?[0-9]+(?:\.[0-9]+)?\.?[eE][-+]?\d+?$'
-        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:|\."
+        self.Special_Char = "[\[@&~!#$\^\{}\]:;<>?,\.']|\(|\)|{}|\[\]|;|:|\.|\`"
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = "\"(.*?)\""
 
@@ -36,7 +36,10 @@ class DecafTokenizer:
             for tk in StringTokens:
                 self.tokens.append("\"{}\"".format(tk))
         
-        else:
+        elif line.startswith("\"") and not line.endswith("\""):
+                self.tokens.append(line)
+
+        else:            
             if self.paternKeywords.search(self.line):
                 #print('2 KEYWORD DETECTED')
                 #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,self.line)]
@@ -69,13 +72,11 @@ class DecafTokenizer:
                         else:
                             pass
 
-            elif self.paternInt.search(self.line) or self.paternInt_Hex.search(self.line):
+            elif (self.paternInt.search(self.line) or self.paternInt_Hex.search(self.line)):
                 #print('5 INT DETECTED')
-
                 IntTokens = [tk for tk in re.findall(self.paternInt,self.line)]
                 for tk in IntTokens:
                     #print(tk)
-
                     self.tokens.append(tk)
 
             if self.paternIdentifiers.search(self.line):
@@ -88,30 +89,29 @@ class DecafTokenizer:
 
             if self.paternOperators.search(self.line):
                 #print('6 OPERATOR DETECTED')
-
                 OperatorTokens = [tk for tk in re.findall(self.paternOperators,self.line)]
                 for tk in OperatorTokens:
-                    for i in tk:
-                        if i == '':
-                            pass
-                        else:
-                            self.tokens.append(i)
+                    self.line = self.line.replace(tk,'')
+                    self.tokens.append(tk)
 
             if self.paternSpecialChar.search(self.line):  
                 #print('7 SPechar DETECTED')
-
                 SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,self.line)]
                 for tk in SpecialCharTokens: self.tokens.append(tk)
+
+            if line.endswith("\""):
+                self.tokens.append("\"")
 
         if self.tokens:
             for token in self.tokens:
                 m = line.find(token)
+                #line = line.replace(token,'',1)
                 disordered_Tokens.append((token,m))
 
             Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
             for tk in Sorted_Tokens:
                 Ordered_Tokens.append(tk[0])
-                 
+                
             return Ordered_Tokens
 
     def get_RegEx(self):
