@@ -82,14 +82,22 @@ class Lex_Analyzer:
                             col_start = line.find(token)
                             col_end = col_start+len(token)
                             if token != line:
-                                if iden_col_start <= col_start <= iden_col_end:
-                                    pass
-                                else:
+                                try:
+                                    if iden_col_start <= col_start <= iden_col_end:
+                                        pass
+                                    else:
+                                        if "+" in token or "-" in token:
+                                            token = token[1:]
+                                            print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+                                        else:
+                                            print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+                                except:
                                     if "+" in token or "-" in token:
-                                        token = token[1:]
-                                        print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+                                            token = token[1:]
+                                            print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
                                     else:
                                         print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
+
                             else:
                                 try:
                                     print(token, (11-len(token))*" ", "line", count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_IntConstant (value = {})'.format(int(token)))
