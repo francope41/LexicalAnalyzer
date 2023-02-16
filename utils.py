@@ -2,6 +2,7 @@ import re
 
 class DecafTokenizer:
     def __init__(self):
+        #Define Rules for REGEX
         self.Keywords = "^void$|^int$|^double$|^bool$|^string$|^null$|^for$|^while$|^if$|^else$|^return$|^break$|^Print$|^ReadInteger$|^ReadLine$|^true$|^false$"
         self.Operators = "\++|\-|\*|/|%|<=|>=|[||]{2}|[==]{2}|="
         self.Int = '[0-9]+'
@@ -12,9 +13,12 @@ class DecafTokenizer:
         self.Identifiers = "[a-zA-Z_]+[a-zA-Z0-9_]*"
         self.String = "\"(.*?)\""
 
-    def tokenize(self,line, count):
+    def tokenize(self,line):
+        #Defining Lists for identifying tokens
         self.tokens ,StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
+        #Lists for before and after tokens
         disordered_Tokens, Ordered_Tokens = [],[]
+        #Compile REGEX rules
         self.paterString = re.compile(self.String)
         self.paternKeywords = re.compile(self.Keywords)
         self.paternIdentifiers = re.compile(self.Identifiers)
@@ -25,29 +29,28 @@ class DecafTokenizer:
         self.paternInt_Hex = re.compile(self.Int_Hex)
         self.paternSpecialChar = re.compile(self.Special_Char)
 
+        #create new variable that holds inputted line
         self.line = line
 
-        Float_token = False
-        Ident_token = False
-
+        #Check if strings present in line
         if self.paterString.search(self.line):
-            #print('1 STRING DETECTED')
             StringTokens = [tk for tk in re.findall(self.paterString,self.line)]
             for tk in StringTokens:
                 self.tokens.append("\"{}\"".format(tk))
         
+        # Check if string is not properly defined
         elif line.startswith("\"") and not line.endswith("\""):
                 self.tokens.append(line)
 
-        else:            
+        else:
+            #Check if keywords present in line
             if self.paternKeywords.search(self.line):
-                #print('2 KEYWORD DETECTED')
-                #KeywordTokens = [tk for tk in re.findall(self.paternKeywords,self.line)]
                 KeywordTokens = [tk for tk in re.findall(self.paternKeywords,self.line)]                
                 for tk in KeywordTokens: self.tokens.append(tk)
 
+            #Check if floats present in line
             if self.paterFloat.search(self.line) or self.paterFloat_eE.search(self.line):
-                #print('4 FLOAT DETECTED'
+                #Check if toke
                 if self.paterFloat_eE.search(self.line):
                     Float_eE_Tokens = [tk for tk in re.findall(self.paterFloat_eE,self.line)]
                     for tk in Float_eE_Tokens:             
@@ -103,10 +106,22 @@ class DecafTokenizer:
                 self.tokens.append("\"")
 
         if self.tokens:
+            ocur_count = 0
             for token in self.tokens:
-                m = line.find(token)
-                #line = line.replace(token,'',1)
-                disordered_Tokens.append((token,m))
+                if self.paterString.search(token):
+                    m = [match.start() for match in re.finditer(token, line)]
+                    #print(m)
+                    if len(m)>1 and ocur_count == 0:
+                        m = m[0]
+                        ocur_count+=1
+                    elif len(m)>1 and ocur_count > 0:
+                        m = m[ocur_count]
+                    else:
+                        m = m[0]
+                    disordered_Tokens.append((token,m))
+                else:
+                    m = line.find(token)
+                    disordered_Tokens.append((token,m))
 
             Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
             for tk in Sorted_Tokens:
