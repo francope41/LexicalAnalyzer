@@ -14,6 +14,11 @@ class DecafTokenizer:
         self.String = "\"(.*?)\""
 
     def tokenize(self,line):
+        """
+        Function to extract tokens per line of code inputed.
+
+        Returns list of tokens organized based on the index.
+        """
         #Defining Lists for identifying tokens
         self.tokens ,StringTokens,KeywordTokens,IntTokens,FloatTokens,OperatorTokens,IdentifierTokens,SpecialCharTokens = [],[],[],[],[],[],[],[]
         #Lists for before and after tokens
@@ -50,58 +55,63 @@ class DecafTokenizer:
 
             #Check if floats present in line
             if self.paterFloat.search(self.line) or self.paterFloat_eE.search(self.line):
-                #Check if toke
+                #Check if line has float with exponent
                 if self.paterFloat_eE.search(self.line):
                     Float_eE_Tokens = [tk for tk in re.findall(self.paterFloat_eE,self.line)]
                     for tk in Float_eE_Tokens:             
                         self.line = self.line.replace(tk,'')
                         self.tokens.append(tk)
                 else:
+                    #Check if line has regular floats
                     FloatTokens = [tk for tk in re.findall(self.paterFloat,self.line)]
                     for tk in FloatTokens:
+                        #Check token starts with "." if so, remove and ignore
                         if tk.startswith('.'):
                             tk = tk[1:]
                         try:
+                            #Remove token so that it does not repeat in another class
                             self.line = self.line.replace(tk,'')
                             int_check = float(tk)
                         except:
                             int_check = None
 
                         if int_check is not None:
+                            #Check if float actually has "." in between digits, if not consider as int
                             if "." in tk:
                                 self.tokens.append(tk)
                             else:
                                 pass
                         else:
                             pass
-
+            
+            #If not float then check if line has an Integer or Hex Integer
             elif (self.paternInt.search(self.line) or self.paternInt_Hex.search(self.line)):
-                #print('5 INT DETECTED')
                 IntTokens = [tk for tk in re.findall(self.paternInt,self.line)]
                 for tk in IntTokens:
-                    #print(tk)
                     self.tokens.append(tk)
 
+            #Check if line has an Identifier
             if self.paternIdentifiers.search(self.line):
-                #print('3 IDENT DETECTED')
                 IdentifierTokens = [tk for tk in re.findall(self.paternIdentifiers,self.line)]
                 for tk in IdentifierTokens:
+                    #Clean line so that tokens do not repeat in other classes
                     self.line = self.line.replace(tk,'')
                     if tk in KeywordTokens: pass 
                     else: self.tokens.append(tk)
 
+            #Check if line has an Operator
             if self.paternOperators.search(self.line):
-                #print('6 OPERATOR DETECTED')
                 OperatorTokens = [tk for tk in re.findall(self.paternOperators,self.line)]
                 for tk in OperatorTokens:
                     self.line = self.line.replace(tk,'')
                     self.tokens.append(tk)
 
+            #Check if line has a Special Character
             if self.paternSpecialChar.search(self.line):  
-                #print('7 SPechar DETECTED')
                 SpecialCharTokens = [tk for tk in re.findall(self.paternSpecialChar,self.line)]
                 for tk in SpecialCharTokens: self.tokens.append(tk)
-
+            
+            #Check if line ends with '"', if so append the whole line to check error
             if line.endswith("\""):
                 self.tokens.append("\"")
 
@@ -109,27 +119,37 @@ class DecafTokenizer:
             ocur_count = 0
             for token in self.tokens:
                 if self.paterString.search(token):
+                    #Get the index location of every occurrence of a token
                     m = [match.start() for match in re.finditer(token, line)]
-                    #print(m)
+                    #If more than one occurrence get the first index and increment count occurrences
                     if len(m)>1 and ocur_count == 0:
                         m = m[0]
                         ocur_count+=1
+                    #If more than one occurrence and already counted one occurrence get next occurrence index and increment count
                     elif len(m)>1 and ocur_count > 0:
                         m = m[ocur_count]
+                        ocur_count+= 1
                     else:
+                        #If just one occurrence get that index occurrence
                         m = m[0]
                     disordered_Tokens.append((token,m))
                 else:
                     m = line.find(token)
                     disordered_Tokens.append((token,m))
 
+            #Sort tokens based on index location on line
             Sorted_Tokens = sorted(disordered_Tokens, key=lambda item:item[1])
             for tk in Sorted_Tokens:
-                Ordered_Tokens.append(tk[0])
+                Ordered_Tokens.append(tk[0]) #Get the tokens without index into a list and return
                 
             return Ordered_Tokens
 
     def get_RegEx(self):
+        """
+        Function for geting REGEX rules
+
+        Returns 7 strings, each contains a rule for REGEX to find
+        """
         Keywords = self.Keywords
         Operators = self.Operators
         #Numerals = self.Numerals
@@ -141,6 +161,11 @@ class DecafTokenizer:
         return Keywords,Operators,Int,Float,Special_Characters,Identifiers, String
 
     def get_dictionaries(self):
+        """
+        Function for getting dictionaries that hold token - value comparison
+
+        Returns 5 Dictionaries
+        """
         operators = {'=': "'='",'+' : "'+'",  '-':"'-'", '*':"'*'",  '/':"'/'", '%':"'%'", '<=':'T_LessEqual', '>=':'T_GreaterEqual','==':'T_Equal', '||':'T_Or'}
         operators_key = operators.keys()
 
@@ -162,6 +187,11 @@ class DecafTokenizer:
         return operators, data_type, punctuation, keyword, empty
 
     def remove_Comments(self,program):
+        """
+        Function to remove comments from the whole input code.
+
+        returns single string with the whole code without the commented items based on decaf rules
+        """
         program_Multi_Comments_Removed = re.sub("/\*[^*]*\*+(?:[^/*][^*]*\*+)*/", "", program)
         program_Single_Comments_Removed = re.sub("//.*", "", program_Multi_Comments_Removed)
         program_Comments_removed = program_Single_Comments_Removed
