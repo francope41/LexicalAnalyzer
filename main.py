@@ -85,7 +85,7 @@ class Lex_Analyzer:
                         if re.search(Keywords,token) :
                             col_start = line.find(token)
                             col_end = col_start+len(token)
-                            print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), keyword_key[token])
+                            print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end),'is', keyword_key[token])
                             kewrd_token = True
 
                         #Search for decaf Identifiers
@@ -113,8 +113,12 @@ class Lex_Analyzer:
                             if "." in token:
                                 col_start = line.find(token)
                                 col_end = col_start+len(token)
-                                
-                                print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_DoubleConstant (value = {})'.format(float(token)))
+
+                                if 'E' in token or 'e' in token:
+                                    print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_DoubleConstant (value = ','%.0f'%float(token)+")")
+                                else:
+                                    print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), 'is T_DoubleConstant (value = {})'.format(float(token)))
+
                                 float_token = True
                             else:
                                 pass
@@ -151,14 +155,14 @@ class Lex_Analyzer:
                         elif re.search(Operators,token)  and not float_token:
                             col_start = line.find(token)
                             col_end = col_start+len(token)
-                            print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), operators_key[token])
+                            print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end),'is',operators_key[token])
 
                         #Check if token is a decaf Special Character
                         elif re.search(Special_Characters, token):
                             col_start = line.find(token)
                             col_end = col_start+len(token)
                             try:
-                                print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end), punctuation_key[token])
+                                print(token, (11-len(token))*" ", "line", line_count, 'cols', str(col_start+1)+'-'+ str(col_end),'is', punctuation_key[token])
                             except:
                                 print('\n*** Error line {}.'.format(line_count), '\n*** Unrecognized char: \'{}\'\n'.format((token)))
 
